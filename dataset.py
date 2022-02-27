@@ -1,13 +1,12 @@
 import os
 import torch
+import random
 import numpy as np
 from torch.utils.data import Dataset
-import random
 
 class FMGdataset(Dataset):
     def __init__(self,args,test_ratio=0.3,phase="train"):
         self.model_name=args.model_name
-        self.device=args.device
         self.channels=args.channels
         self.actions=args.part_actions
         self.action_dict={action_cls:idx for idx, action_cls in enumerate(self.actions)}
@@ -71,12 +70,7 @@ class FMGdataset(Dataset):
         label=np.zeros(len(self.actions),dtype=np.float32)
         label[self.action_dict[a_class]]=1
         
-        if self.model_name=="GCN":
-            return w_data,torch.from_numpy(label)
-
-        else:
-            return torch.as_tensor(w_data.astype(np.float32)),torch.from_numpy(label)
-
+        return torch.as_tensor(w_data.astype(np.float32)),torch.from_numpy(label)
 
     @staticmethod
     def collate_fn(batch):
@@ -86,8 +80,8 @@ class FMGdataset(Dataset):
 
 if __name__ == "__main__":
     from model_config import build_args
-    args=build_args("LSTM")
+    args=build_args("GCN")
     data=FMGdataset(args,phase="train")
-    w_data,label=data.__getitem__(617)
+    w_data,label=data.__getitem__(0)
     print(w_data.shape,label)
         

@@ -1,44 +1,41 @@
-from doctest import testfile
-from tokenize import group
 import torch
 from tqdm import tqdm
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
-from pylab import mpl
 import seaborn as sns
 import os
 import time
-import  networkx as nx
-import  scipy.sparse as sp
-from scipy.sparse import csr_matrix
-import utils
+import networkx as nx
+import random
 
 plt.rc('font',family='Times New Roman') 
 plt.rcParams['axes.unicode_minus'] = False
-mpl.rcParams['font.size'] = 12
+from pylab import mpl
+mpl.rcParams['font.size'] = 18
 
 def make_dir(file_path):
     if not os.path.exists(file_path):
         os.makedirs(file_path)
 
+def set_seed(seed=0):
+    torch.manual_seed(seed)
+    np.random.seed(seed)
+    torch.cuda.manual_seed_all(seed)
+    random.seed(seed)
+    torch.backends.cudnn.deterministic=True
+    torch.backends.cudnn.benchmark=False
+
 def train(epoch,model,train_loader,optimizer,criterion,device,adj=None):
     model.train()
-    train_bar = tqdm(train_loader)
     running_loss = 0.0
-    for data, label in train_bar:
-
+    for data, label in tqdm(train_loader):
         label=label.to(device)
-        optimizer.zero_grad()
-
+        
         if adj is not None:
-            data=data[0].T#[T,C] -> [C,T]
-            data=csr_matrix(data).tolil()#######################################
-            data=utils.preprocess_features(data)
-            i = torch.from_numpy(data[0]).long().to(device)
-            v = torch.from_numpy(data[1]).to(device)
-            feature = torch.sparse.FloatTensor(i.t(), v, data[2]).to(device)
-            outputs=model(feature,adj)
+            adj=adj.to(device)
+            data=data.to(device)
+            outputs=model(data,adj)
         else:
             data=data.to(device)
             outputs=model(data)
@@ -46,6 +43,7 @@ def train(epoch,model,train_loader,optimizer,criterion,device,adj=None):
         loss = criterion(outputs, label)
         loss=loss.mean()
 
+        optimizer.zero_grad()
         loss.backward()
         optimizer.step()
 
@@ -62,17 +60,11 @@ def test(epoch,model,test_loader,criterion,n_class,device,adj=None):
     confusion_matrix = torch.zeros(n_class, n_class)
     with torch.no_grad():
         for data, label in tqdm(test_loader):
-            
             label=label.to(device)
-
             if adj is not None:
-                data=data[0].T#[T,C] -> [C,T]
-                data=csr_matrix(data).tolil()#######################################
-                data=utils.preprocess_features(data)
-                i = torch.from_numpy(data[0]).long().to(device)
-                v = torch.from_numpy(data[1]).to(device)
-                feature = torch.sparse.FloatTensor(i.t(), v, data[2]).to(device)
-                outputs=model(feature,adj)
+                adj=adj.to(device)
+                data=data.to(device)
+                outputs=model(data,adj)
             else:
                 data=data.to(device)
                 outputs=model(data)
@@ -103,12 +95,11 @@ def v_confusion_matrix(cm,class_list,title=None,save_path=None):
 
     plt.figure(figsize=(6,6))
     sns_plot=sns.heatmap(cm,annot=True,linewidth=0.5,fmt=".4g",cmap="binary",cbar=False)#cmap:'Reds/Blues','binary',YlGnBu','RdBu_r'
-    sns_plot.tick_params(labelsize=10, direction='out')
-    plt.xlabel("Predict Class")
+    sns_plot.tick_params(labelsize=16,direction='out')
+    plt.xlabel("Predicted Class")
     plt.ylabel("True Class")
     if title is not None:
         plt.title(title)
-
     if save_path is not None:
         plt.savefig(save_path,bbox_inches="tight",dpi=300)  
 
@@ -124,74 +115,44 @@ def select_channel(n,items):
             set_all.append(combo)
     return set_all
 
-def get_adjmatrix():
+def get_adjmatrix(args):
     sensor_loc_list=np.array([3,11,2,12,10,9,15,16,8,5,7,1,4,6,13,14])-1#minus 1:crresponding to index
     group_list=[sensor_loc_list[:6],sensor_loc_list[6:12],sensor_loc_list[12:]]
 
     graph_dict={}
     for group in  group_list:
         for i in group:
-            connect_node=[]
-            for j in group:
-                if j!=i:#no circle
-                    connect_node.append(j)
-            graph_dict[i]=connect_node
+            if i in args.channels:
+                connect_node=[]
+                for j in group:
+                    if j!=i and j in args.channels:#no circle
+                        connect_node.append(j)
+                graph_dict[i]=connect_node
     graph_dict=dict(sorted(graph_dict.items(),key=lambda item:item[0]))#sort the graph_dict by key
     # print(graph_dict)
 
-    adj=nx.adjacency_matrix(nx.from_dict_of_lists(graph_dict))
+    adj=nx.adjacency_matrix(nx.from_dict_of_lists(graph_dict)).toarray()
     adj=preprocess_adj(adj)
 
     return adj
 
-def sparse_to_tuple(sparse_mx):
-    """
-    Convert sparse matrix to tuple representation.
-    """
-    def to_tuple(mx):
-        if not sp.isspmatrix_coo(mx):
-            mx = mx.tocoo()
-        coords = np.vstack((mx.row, mx.col)).transpose()
-        values = mx.data
-        shape = mx.shape
-        return coords, values, shape
-
-    if isinstance(sparse_mx, list):
-        for i in range(len(sparse_mx)):
-            sparse_mx[i] = to_tuple(sparse_mx[i])
-    else:
-        sparse_mx = to_tuple(sparse_mx)
-
-    return sparse_mx
-
-def normalize_adj(adj):
-        """Symmetrically normalize adjacency matrix."""
-        adj = sp.coo_matrix(adj)
-        rowsum = np.array(adj.sum(1)) # D
-        d_inv_sqrt = np.power(rowsum, -0.5).flatten() # D^-0.5
-        d_inv_sqrt[np.isinf(d_inv_sqrt)] = 0.
-        d_mat_inv_sqrt = sp.diags(d_inv_sqrt) # D^-0.5
-        return adj.dot(d_mat_inv_sqrt).transpose().dot(d_mat_inv_sqrt).tocoo() # D^-0.5AD^0.5
-
 def preprocess_adj(adj):
-    """Preprocessing of adjacency matrix for simple GCN model and conversion to tuple representation."""
-    adj_normalized = normalize_adj(adj + sp.eye(adj.shape[0]))
-    return sparse_to_tuple(adj_normalized)
-
-def preprocess_features(features):
-        """
-        Row-normalize feature matrix and convert to tuple representation
-        """
-        rowsum = np.array(features.sum(1)) # get sum of each row, [C, 1]
-        r_inv = np.power(rowsum, -1).flatten() # 1/rowsum, [C]
-        r_inv[np.isinf(r_inv)] = 0. # zero inf data
-        r_mat_inv = sp.diags(r_inv) # sparse diagonal matrix, [C, C]
-        features = r_mat_inv.dot(features) # D^-1:[C, C]@X:[C, C]
-        return utils.sparse_to_tuple(features) # [coordinates, data, shape], []
-
+    '''
+    Pre-process adjacency matrix
+    :param A: adjacency matrix
+    :return:
+    '''
+    I = np.eye(adj.shape[0])
+    A_hat = adj + I # add self-loops
+    D_hat_diag = np.sum(A_hat, axis=1)
+    D_hat_diag_inv_sqrt = np.power(D_hat_diag, -0.5)
+    D_hat_diag_inv_sqrt[np.isinf(D_hat_diag_inv_sqrt)] = 0.
+    D_hat_inv_sqrt = np.diag(D_hat_diag_inv_sqrt)
+    A=np.dot(np.dot(D_hat_inv_sqrt, A_hat), D_hat_inv_sqrt)
+    return torch.from_numpy(A).float()
+    
 def sparse_dropout(x, rate, noise_shape):
     """
-
     :param x:
     :param rate:
     :param noise_shape: int scalar
@@ -201,15 +162,13 @@ def sparse_dropout(x, rate, noise_shape):
     random_tensor += torch.rand(noise_shape).to(x.device)
     dropout_mask = torch.floor(random_tensor).byte()
     dropout_mask=dropout_mask.bool()
-    i = x._indices() # [2, 49216]
-    v = x._values() # [49216]
+    i = x._indices() 
+    v = x._values() 
 
-    # [2, 4926] => [49216, 2] => [remained node, 2] => [2, remained node]
     i = i[:, dropout_mask]
     v = v[dropout_mask]
 
     out = torch.sparse.FloatTensor(i, v, x.shape).to(x.device)
-
     out = out * (1./ (1-rate))
 
     return out

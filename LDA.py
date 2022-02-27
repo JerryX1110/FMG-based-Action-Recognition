@@ -15,6 +15,7 @@ from pylab import mpl
 mpl.rcParams['font.size'] = 12
 
 
+
 #single subject
 def load_data(args):
     action_dict={action_cls:idx for idx, action_cls in enumerate(args.part_actions)}
@@ -60,9 +61,6 @@ def LDAmodel(args):
     t_end=time.perf_counter()
     t_mean=(t_end-t_start)/len(Y_pred)
 
-    # score=accuracy_score(Ytest, Y_pred)
-    # print(score)
-
     cm=confusion_matrix(Ytest, Y_pred, labels=None, sample_weight=None)
     cm=np.rint(100*cm/cm.sum(axis=1)[:, np.newaxis])
 
@@ -106,9 +104,7 @@ if __name__  == "__main__":
     save_path="figure"
     utils.make_dir(save_path)
     title="Confusion matrix of "+args.model_name
-    utils.v_confusion_matrix(cm,args.part_actions,title=title,save_path="./figure/{}_CM.png".format(args.model_name))
     utils.v_confusion_matrix(cm,args.part_actions,title=title,save_path="./figure/{}_CM.pdf".format(args.model_name))
     plt.show()
-
 
     # window_stride_analysis(args)
