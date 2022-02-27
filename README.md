@@ -1,7 +1,7 @@
 # FMG-based Action Recognition
 ### Official Implementation of '[Optimization of Forcemyography Sensor Placement for Arm Movement Recognition]()'
 ## Notations
-![teaser](https://github.com/pipixin321/FMG-based-Action-Recognition/blob/main/fig/teaser_new.pdf)
+![teaser](https://github.com/pipixin321/FMG-based-Action-Recognition/blob/main/fig/teaser_new.png)
 >**Optimization of Forcemyography Sensor Placement for Arm Movement Recognition**<br>
 >Xiaohao Xu, Zihao Du, Huaxin Zhang, Ruichao Zhang,
 Zihan Hong, Qin Huang, and Bin Han∗, Member, IEEE
