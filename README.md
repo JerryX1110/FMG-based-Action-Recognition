@@ -2,8 +2,7 @@
 ### Official Implementation of '[Optimization of Forcemyography Sensor Placement for Arm Movement Recognition]()'
 
 <!-- ![teaser](https://github.com/pipixin321/FMG-based-Action-Recognition/blob/main/fig/teaser_new.png) -->
-<img src="https://github.com/pipixin321/FMG-based-Action-Recognition/blob/main/fig/teaser_new.png" width="173" height="203"/>
-<img src="https://github.com/pipixin321/FMG-based-Action-Recognition/blob/main/fig/FMG-GCN-new.png" width="600" height="200"/>
+<img src="https://github.com/pipixin321/FMG-based-Action-Recognition/blob/main/fig/teaser_new.png" width="173" height="203"/><img src="https://github.com/pipixin321/FMG-based-Action-Recognition/blob/main/fig/FMG-GCN-new.png" width="594" height="172"/>
 >**Optimization of Forcemyography Sensor Placement for Arm Movement Recognition**<br>
 >Xiaohao Xu, Zihao Du, Huaxin Zhang, Ruichao Zhang,
 Zihan Hong, Qin Huang, and Bin Han∗, Member, IEEE
