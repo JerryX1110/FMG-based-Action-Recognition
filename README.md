@@ -1,5 +1,5 @@
 # FMG-based Action Recognition
-### Official Implementation of '[Optimization of Forcemyography Sensor Placement for Arm Movement Recognition]()'
+### [Official] '[Optimization of Forcemyography Sensor Placement for Arm Movement Recognition]()'
 
 <!-- ![teaser](https://github.com/pipixin321/FMG-based-Action-Recognition/blob/main/fig/teaser_new.png) -->
 <img src="https://github.com/pipixin321/FMG-based-Action-Recognition/blob/main/fig/teaser_new.png" width="150"> <img src="https://github.com/pipixin321/FMG-based-Action-Recognition/blob/main/fig/FMG-GCN-new.png" width="500"/>
