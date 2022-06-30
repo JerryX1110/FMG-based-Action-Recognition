@@ -1,4 +1,3 @@
-# FMG-based Action Recognition
 ### [Official] '[Optimization of Forcemyography Sensor Placement for Arm Movement Recognition]()'
 
 <!-- ![teaser](https://github.com/pipixin321/FMG-based-Action-Recognition/blob/main/fig/teaser_new.png) -->
@@ -7,7 +6,7 @@
 >Xiaohao Xu, Zihao Du, Huaxin Zhang, Ruichao Zhang,
 Zihan Hong, Qin Huang, and Bin Han∗, Member, IEEE
 
->(In submission)
+>**In the Proceedings of the 2022 IEEE/RSJ International Conference on Intelligent Robots and Systems (IROS22)**
 
 >**Abstract:**  *How to design an optimal wearable device for human movement recognition is vital to reliable and accurate human-machine collaboration. Previous works mainly fabricate wearable devices heuristically. Instead, this paper raises an academic question:can we design an optimization algorithm to optimize the fabrication of wearable devices such as figuring out the best sensor arrangement automatically? Specifically, this work focuses on optimizing the placement of Forcemyography (FMG) sensors for FMG armbands in application of arm movement recognition. Firstly, the armband is modeled based on graph theory with both sensor signals and connectivity of sensors considered. Then, a Graph-based Armband Modeling Network(GAM-Net) is introduced for arm movement recognition. Afterward, the sensor placement optimization for FMG armbands is formulated and an optimization algorithm with greedy local search is proposed. To study the effectiveness of our optimization algorithm, a dataset for mechanical maintenance tasks using FMG armbands with 16 sensors is collected. Our experiments show that a comparable recognition accuracy with all sensors can be 
 maintained even with 4 sensors optimized with our algorithm. Finally, the optimized sensor placement result is verified from a physiological view. This work would like to shed light on the automatic fabrication of wearable devices with downstream tasks, like human biological signal collection and movement recognition, considered.*
