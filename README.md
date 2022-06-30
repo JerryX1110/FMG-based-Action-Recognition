@@ -21,7 +21,9 @@ maintained even with 4 sensors optimized with our algorithm. Finally, the optimi
 You can set up the environments by using `$ pip3 install -r requirements.txt`.
 
 ### Data Preparation
-1. Download our self-collected FMG dataset on mechanical maintenance tasks:https://pan.baidu.com/s/1NYCBs1VkBx20i-INAJZZ2w password:sga8.
+1. Download our self-collected FMG dataset on mechanical maintenance tasks.
+- BaiduDisk Link: https://pan.baidu.com/s/1NYCBs1VkBx20i-INAJZZ2w 
+- BaiduDisk Password:sga8.
 
 2. Place the `original_data_new` inside the working folder.
 - ensure the data structure is as follows.
